@@ -25,8 +25,30 @@ bool GetPlaneVector(List<Vector3d^>^ points, Vector3d^% planeVector);
 /// <returns></returns>
 int main(array<System::String^>^ args)
 {
+	String^ exeLoc = System::IO::Path::GetDirectoryName(System::Reflection::Assembly::GetExecutingAssembly()->Location);
+	Console::WriteLine("LinePerpendicularToCurveAtPoint.exe");
+	{
+
+		System::IO::StreamReader^ sr = gcnew System::IO::StreamReader(exeLoc + "\\License.txt");
+		Console::WriteLine(sr->ReadToEnd());
+		Console::WriteLine();
+		sr->Close();
+	}
+
+	if (args->Length < 4) {
+		Console::WriteLine("Not enough arguments have been entered. Arguments are:");
+		Console::WriteLine("1: Nominal Curve File Name");
+		Console::WriteLine("2: Measured Curves File Name");
+		Console::WriteLine("3: Point Locations File Name");
+		Console::WriteLine("4: Output File Name");
+		Console::WriteLine();
+		Console::WriteLine("Press any key to continue...");
+		Console::ReadKey();
+		return 1;
+	}
+
 	// Read the arguments
-	String^ nominalFileName = args[0];
+ 	String^ nominalFileName = args[0];
 	String^ measuredFileName = args[1];
 	String^ nominalLocations = args[2];
 	String^ outputFile = args[3];

@@ -95,6 +95,7 @@ XCOPY "$(TBB_BIN)\*.DLL" $(TargetDir) /y
 XCOPY "$(FFMPEG_BIN)\*.DLL" $(TargetDir) /y
 XCOPY "$(FREEIMAGE_BIN)\*.DLL" $(TargetDir) /y
 XCOPY "$(FREETYPE_BIN)\*.DLL" $(TargetDir) /y
+XCOPY .\License.txt $(TargetDir) /Y
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -136,15 +137,18 @@ XCOPY "$(FREETYPE_BIN)\*.DLL" $(TargetDir) /y
       <AdditionalLibraryDirectories> $(OCCT_LIB_DEBUG);$(TBB_LIB_DEBUG)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>XCOPY "$(OCCT_BIN_DEBUG)\TKernel.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKMath.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKG3d.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKG2d.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKGeomBase.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKBrep.dll" $(TargetDir) /y
-XCOPY "$(OCCT_BIN_DEBUG)\TKGeomAlgo.dll" $(TargetDir) /y
+      <Command>XCOPY "$(OCCT_BIN)\TKernel.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKMath.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKG3d.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKG2d.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKGeomBase.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKBrep.dll" $(TargetDir) /y
+XCOPY "$(OCCT_BIN)\TKGeomAlgo.dll" $(TargetDir) /y
+XCOPY "$(TBB_BIN)\tbb.DLL" $(TargetDir) /y
+XCOPY "$(TBB_BIN)\tbbmalloc.DLL" $(TargetDir) /y
+XCOPY "$(TBB_BIN)\tbbmalloc_proxy.DLL" $(TargetDir) /y
+XCOPY .\License.txt $(TargetDir) /Y
 
-XCOPY "$(TBB_BIN)\*.DLL" $(TargetDir) /y
 
 </Command>
     </PostBuildEvent>
@@ -190,6 +194,11 @@ XCOPY "$(TBB_BIN)\*.DLL" $(TargetDir) /y
     <ProjectReference Include="..\EigenNet\EigenNet.vcxproj">
       <Project>{342a0ed9-5c3b-4b66-bc09-e8896f989785}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="License.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

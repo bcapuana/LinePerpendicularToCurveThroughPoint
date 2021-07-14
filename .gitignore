@@ -5,6 +5,7 @@
 
 # User-specific files
 vs/
+Installer/*.exe
 *.rsuser
 *.suo
 *.user
