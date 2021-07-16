@@ -48,7 +48,7 @@ int main(array<System::String^>^ args)
 	}
 
 	// Read the arguments
- 	String^ nominalFileName = args[0];
+	String^ nominalFileName = args[0];
 	String^ measuredFileName = args[1];
 	String^ nominalLocations = args[2];
 	String^ outputFile = args[3];
@@ -103,7 +103,7 @@ int main(array<System::String^>^ args)
 			Console::WriteLine(error);
 			return 1;
 		}
-		
+
 		// End of file so modus program can continue.
 		sw->WriteLine("ENDFIL");
 		sw->Flush();
@@ -164,7 +164,6 @@ bool CreatePerpendicularLines(System::IO::StreamWriter^ sw, List<Section^>^ nomi
 			{
 				//no, return error.
 				Console::WriteLine("Could not find nominal section {0}", sec->SectionName);
-				return false;
 			}
 		}
 
@@ -180,37 +179,52 @@ bool CreatePerpendicularLines(System::IO::StreamWriter^ sw, List<Section^>^ nomi
 			{
 				// no, return error
 				Console::WriteLine("Could not find measured section {0}", sec->SectionName);
-				return false;
+			}
+		}
+		if (nominalSection != nullptr && measuredSection != nullptr) {
+			// get the plane vectors
+			Vector3d^ nominalPlaneVector, ^ measuredPlaneVector;
+			GetPlaneVector(nominalSection->OutsidePoints, nominalPlaneVector);
+			GetPlaneVector(measuredSection->OutsidePoints, measuredPlaneVector);
+
+			// loop through each point and create the line
+			for each (CurvePerpendicualToPoint::PointLocation ^ p in sec->Points)
+			{
+				// get the point name
+				String^ pointName = p->Name;
+
+				// get the point index
+
+				double pointValue = 0;
+				String^ lineIndex = nullptr;
+				//Console::WriteLine(p->Name->Substring(p->Name->LastIndexOf("_") + 1));
+				double::TryParse(p->Name->Substring(p->Name->LastIndexOf("_") + 1), pointValue);
+				lineIndex = String::Format("{0:F2}", pointValue);
+				double remainder = fmodf(pointValue, 1.0);
+				//Console::WriteLine(remainder);
+				if (remainder > 0)
+					lineIndex = String::Format("{0:F1}", pointValue);
+				else
+					lineIndex = pointValue < 10 ? ("0" + ((int)pointValue).ToString()) : ((int)pointValue).ToString();
+
+
+				//Console::WriteLine(lineIndex);
+
+				Vector3d^ xyz, ^ ijk;
+
+				// create the feature name
+				String^ featureName = String::Format("{0}_LN_PERP_{1}", sec->SectionName, lineIndex);
+
+				// find the nominal line and write to file
+				GetLineParams(nominalSection, p->NominalLocation, xyz, ijk, nominalPlaneVector, error);
+				sw->WriteLine("F({0})=FEAT/LINE,UNBND,CART,{1},{2},{3}", featureName, xyz, ijk, nominalPlaneVector);
+
+				// find the measured line and write to file
+				GetLineParams(measuredSection, p->MeasuredLocation, xyz, ijk, measuredPlaneVector, error);
+				sw->WriteLine("FA({0})=FEAT/LINE,UNBND,CART,{1},{2},{3}", featureName, xyz, ijk, measuredPlaneVector);
 			}
 		}
 
-		// get the plane vectors
-		Vector3d^ nominalPlaneVector, ^ measuredPlaneVector;
-		GetPlaneVector(nominalSection->OutsidePoints, nominalPlaneVector);
-		GetPlaneVector(measuredSection->OutsidePoints, measuredPlaneVector);
-		
-		// loop through each point and create the line
-		for each (CurvePerpendicualToPoint::PointLocation ^ p in sec->Points)
-		{
-			// get the point name
-			String^ pointName = p->Name;
-
-			// get the point index
-			int pointIndex = Convert::ToDouble(p->Name->Substring(p->Name->LastIndexOf("_") + 1));
-			Vector3d^ xyz, ^ ijk;
-
-			// create the feature name
-			String^ featureName = String::Format("{0}_LN_PERP_{1}", sec->SectionName, (pointIndex < 10 ? "0" + pointIndex : pointIndex.ToString()));
-
-			// find the nominal line and write to file
-			GetLineParams(nominalSection, p->NominalLocation, xyz, ijk, nominalPlaneVector, error);
-			sw->WriteLine("F({0})=FEAT/LINE,UNBND,CART,{1},{2},{3}", featureName, xyz, ijk, nominalPlaneVector);
-
-			// find the measured line and write to file
-			GetLineParams(measuredSection, p->MeasuredLocation, xyz, ijk, measuredPlaneVector, error);
-			sw->WriteLine("FA({0})=FEAT/LINE,UNBND,CART,{1},{2},{3}", featureName, xyz, ijk, measuredPlaneVector);
-		}
-		
 	}
 	return true;
 }
@@ -237,7 +251,7 @@ bool GetPlaneVector(List<Vector3d^>^ points, Vector3d^% planeVector)
 bool GetLineParams(Section^ section, Vector3d^ location, Vector3d^% xyz, Vector3d^% ijk, Vector3d^ planeVector, String^% error)
 {
 	Handle(Geom_BSplineCurve) outsideCurve = section->m_outsideCurve();
-	
+
 	GeomAPI_ProjectPointOnCurve ppc(gp_Pnt(location->x, location->y, location->z), outsideCurve);
 
 	double closestParam = ppc.LowerDistanceParameter();
@@ -245,7 +259,7 @@ bool GetLineParams(Section^ section, Vector3d^ location, Vector3d^% xyz, Vector3
 
 	gp_Pnt firstPoint, lastPoint, closestPoint;
 	gp_Vec firstVector, lastVector, closestVector;
-	
+
 	outsideCurve->D1(outsideCurve->FirstParameter(), firstPoint, firstVector);
 	outsideCurve->D1(closestParam, closestPoint, closestVector);
 	outsideCurve->D1(outsideCurve->LastParameter(), lastPoint, lastVector);
@@ -258,7 +272,7 @@ bool GetLineParams(Section^ section, Vector3d^ location, Vector3d^% xyz, Vector3
 	double d2 = (gcnew Vector3d(closestPoint.X(), closestPoint.Y(), closestPoint.Z()) - location)->VectorLength;
 	double d3 = (gcnew Vector3d(lastPoint.X(), lastPoint.Y(), lastPoint.Z()) - location)->VectorLength;
 
-	if (d1 < d2 && d1 < d3) 
+	if (d1 < d2 && d1 < d3)
 	{
 		output = firstPoint;
 		outputVec = firstVector;
