@@ -12,7 +12,7 @@
 ; The name of the installer
 !include LogicLib.nsh
 
-;!define OFFLINE 1
+!define OFFLINE 1
 
 Var /GLOBAL offline
 Var /GLOBAL dotNetRequired
@@ -97,7 +97,9 @@ Section -Prerequisits
 SetOutPath $TEMP
 Call CheckCPPRedist
 Call CheckDotNet
-
+File "..\SetPathVar\bin\x64\Release\SetPathVar.exe"
+ExecWait 'SetPathVar.exe "$INSTDIR"'
+Delete SetPathVar.exe
 
 !ifndef OFFLINE
     ${If} $cppRedistRequired == 1
